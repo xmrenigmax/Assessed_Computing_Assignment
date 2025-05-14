@@ -26,7 +26,7 @@ CREATE TABLE EmployeeRoles (
     Roles VARCHAR(100) NOT NULL CHECK (Roles IN ('User', 'HR', 'Line-Manager')),
 
     PRIMARY KEY (Employee_ID),
-    CONSTRAINT fk_Employee FOREIGN KEY (Employee_ID) REFERENCES EMPLOYEES(Employee_ID)
+    CONSTRAINT fk_Employee FOREIGN KEY (Employee_ID) REFERENCES Employee(Employee_ID)
 );
 
     
@@ -45,7 +45,7 @@ CREATE TABLE RolePermissions (
     PermissionLevel VARCHAR(100) NOT NULL CHECK (PermissionLevel IN ('User', 'Enhanced', 'Enhanced+')),
 
     PRIMARY KEY (Employee_ID),
-    CONSTRAINT fk_RolePermissions_Employee FOREIGN KEY (Employee_ID) REFERENCES EMPLOYEES(Employee_ID)
+    CONSTRAINT fk_RolePermissions_Employee FOREIGN KEY (Employee_ID) REFERENCES Employee(Employee_ID)
 );
 
 -- Referral table
@@ -70,7 +70,7 @@ CREATE TABLE Referral (
     HR_Employee NUMBER(1) NOT NULL,
     HR_Notes VARCHAR(255),
     -- Constraints
-    CONSTRAINT fk_Referral_Employee FOREIGN KEY (Employee_ID) REFERENCES EMPLOYEES(Employee_ID),
+    CONSTRAINT fk_Referral_Employee FOREIGN KEY (Employee_ID) REFERENCES Employee(Employee_ID),
     CONSTRAINT fk_ServiceProvider FOREIGN KEY (ServiceProvider_ID) REFERENCES ServiceProviders(ServiceProvider_ID)
 );
 
@@ -110,7 +110,7 @@ CREATE TABLE Referral (
 SELECT  Referral_ID, 
         CreatedDate, 
         E1.EmployeeName AS CreatedBy,
-        E2.Employee_ID AS Employee_ID,
+        E2.EmployeeName AS Employee_ID,
         ServiceProvider_ID, 
         ReferralDate, 
         EndDate, 
@@ -134,8 +134,8 @@ SELECT  Referral_ID,
     FROM Referral
 
     -- outer joins to get employee names
-    LEFT JOIN EMPLOYEES E1 ON Referral.CreatedBy = E1.Employee_ID
-    LEFT JOIN EMPLOYEES E2 ON Referral.Employee_ID = E2.Employee_ID
+    LEFT JOIN Employee E1 ON Referral.CreatedBy = E1.Employee_ID
+    LEFT JOIN Employee E2 ON Referral.Employee_ID = E2.EmployeeName
 
 
     -- Where clauses to filter
@@ -159,7 +159,7 @@ SELECT  Referral_ID,
 SELECT  R.Referral_ID, 
         R.CreatedDate, 
         E1.EmployeeName AS CreatedBy,
-        E2.Employee_ID,
+        E2.EmployeeName AS Employee_ID,
         R.ServiceProvider_ID, 
         R.ReferralDate, 
         R.EndDate, 
@@ -183,11 +183,11 @@ SELECT  R.Referral_ID,
     FROM Referral R
 
     -- outer joins to get employee names
-    LEFT JOIN EMPLOYEES E1 ON R.CreatedBy = E1.Employee_ID
-    LEFT JOIN EMPLOYEES E2 ON R.Employee_ID = E2.Employee_ID
+    LEFT JOIN Employee E1 ON R.CreatedBy = E1.Employee_ID
+    LEFT JOIN Employee E2 ON R.Employee_ID = E2.Employee_ID
 
     -- Where clauses to filter
-    WHERE R.Employee_ID IN (SELECT Employee_ID FROM EMPLOYEES WHERE CurrentLineManager = 'current_employee_id')
+    WHERE R.Employee_ID IN (SELECT Employee_ID FROM Employee WHERE CurrentLineManager = 'current_employee_id')
         AND R.ReferralStatus IN ('Open', 'In Progress', 'Closed', 'Deferred', 'Cancelled')
         AND (R.SelfReferral = 1 OR (R.SelfReferral = 0 AND R.ReferralStatus != 'Closed'))
         AND R.CreatedDate >= ADD_MONTHS(SYSDATE, -36);
@@ -200,7 +200,7 @@ SELECT  R.Referral_ID,
 SELECT  R.Referral_ID, 
         R.CreatedDate, 
         E1.EmployeeName AS CreatedBy,
-        E2.Employee_ID,
+        E2.EmployeeName AS Employee_ID,
         R.ServiceProvider_ID, 
         R.ReferralDate, 
         R.EndDate, 
@@ -219,18 +219,20 @@ SELECT  R.Referral_ID,
         R.ReferralStatus, 
         R.Emergency, 
         R.EthicsOfficer, 
+        R.ActualCost,
+        R.ProjectedCost,
         R.HR_Employee, 
         R.HR_Notes
     FROM Referral R
 
     -- outer joins to get employee names
-    LEFT JOIN EMPLOYEES E1 ON R.CreatedBy = E1.Employee_ID
-    LEFT JOIN EMPLOYEES E2 ON R.Employee_ID = E2.Employee_ID
+    LEFT JOIN Employee E1 ON R.CreatedBy = E1.Employee_ID
+    LEFT JOIN Employee E2 ON R.Employee_ID = E2.Employee_ID
 
     -- Where clauses to filter
     WHERE R.Employee_ID IN (
     SELECT E.Employee_ID 
-    FROM EMPLOYEES E
+    FROM Employee E
     JOIN EmployeeRoles ER ON E.Employee_ID = ER.Employee_ID 
     WHERE ER.Roles = 'HR'
 )
@@ -243,7 +245,7 @@ SELECT  R.Referral_ID,
 DROP TABLE Referral;
 DROP TABLE RolePermissions;
 DROP TABLE EmployeeRoles;
-DROP TABLE EMPLOYEES;
+DROP TABLE Employee;
 DROP TABLE ServiceProviders;
 DROP TABLE Department;
 
