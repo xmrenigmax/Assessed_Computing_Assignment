@@ -295,8 +295,7 @@ SELECT
         JOIN Employee employee ON Referral.Employee_ID = employee.Employee_ID
 
         -- WHERE clause to filter
-        WHERE ReferralStatus IN ('Open', 'In Progress', 'Closed', 'Deferred', 'Cancelled')
-            AND (SelfReferral = 1 OR (SelfReferral = 0 AND ReferralStatus != 'Closed'))
+        WHERE (SelfReferral = 1 OR (SelfReferral = 0 AND ReferralStatus != 'Closed'))
             AND CreatedDate >= ADD_MONTHS(SYSDATE, -36);
 
 
