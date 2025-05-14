@@ -110,14 +110,76 @@ CREATE TABLE Referral (
 
 
 
--- Combination 1-7 
-SELECT Referral_ID, CreatedDate, CreatedBy, Employee_ID, ServiceProvider_ID, ReferralDate, EndDate, SelfReferral,
-       RequestedService, Notes, Attachment, Confidentiality, ReferralStatus, Emergency, EthicsOfficer, HR_Employee, HR_Notes
-FROM Referral
+-- redesign of combination 1-7 
+SELECT  Referral_ID, 
+        CreatedDate, 
+        CreatedBy, 
+        Employee_ID, 
+        ServiceProvider_ID, 
+        ReferralDate, 
+        EndDate, 
+        SelfReferral,
+        RequestedService,
+        -- Conditions based on status 
+        CASE
+            WHEN ReferralStatus IN ('Open','In Progress') THEN Notes
+            ELSE NULL
+        END AS Notes,
+        CASE
+            WHEN ReferralStatus IN ('Open','In Progress') THEN Attachment
+            ELSE NULL
+        END AS Attachment, 
+        Confidentiality, 
+        ReferralStatus, 
+        Emergency, 
+        EthicsOfficer, 
+        HR_Employee, 
+        HR_Notes
+    FROM Referral
 WHERE Employee_ID = 'current_employee_id'
   AND ReferralStatus IN ('Open', 'In Progress', 'Closed', 'Deferred', 'Cancelled')
   AND (SelfReferral = TRUE OR (SelfReferral = FALSE AND ReferralStatus != 'Closed'))
   AND CreatedDate >= DATEADD(YEAR, -3, GETDATE());
 
--- redesign of combination 1-7
 
+
+/* Line Manager Requirements 
+1. view staff members who have them as a current line manager
+2. Can add notes to own referrals, and subordinates (if any)
+3. Can view all referrals raised by them up to 3 years back.
+4. run Reportss relating to their department:
+6. Self-referral can be confidential or not. non-self referrals are not confidential.
+7. view status of own referrals. (can close self-referrals but not non-self referrals)
+8. view open notes and attachments not closed
+*/
+
+-- combination of 1-8
+SELECT  Referral_ID, 
+        CreatedDate, 
+        CreatedBy, 
+        Employee_ID, 
+        ServiceProvider_ID, 
+        ReferralDate, 
+        EndDate, 
+        SelfReferral,
+        RequestedService,
+        -- Conditions based on status 
+        CASE
+            WHEN ReferralStatus IN ('Open','In Progress') THEN Notes
+            ELSE NULL
+        END AS Notes,
+        CASE
+            WHEN ReferralStatus IN ('Open','In Progress') THEN Attachment
+            ELSE NULL
+        END AS Attachment, 
+        Confidentiality, 
+        ReferralStatus, 
+        Emergency, 
+        EthicsOfficer, 
+        HR_Employee, 
+        HR_Notes
+    FROM Referral
+WHERE Employee_ID IN (SELECT Employee_ID FROM EMPLOYEES WHERE CurrentLineManager = 'current_employee_id')
+  AND ReferralStatus IN ('Open', 'In Progress', 'Closed', 'Deferred', 'Cancelled')
+  AND (SelfReferral = TRUE OR (SelfReferral = FALSE AND ReferralStatus != 'Closed'))
+  AND CreatedDate >= DATEADD(YEAR, -3, GETDATE());
