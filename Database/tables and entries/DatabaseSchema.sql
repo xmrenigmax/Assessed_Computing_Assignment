@@ -1,171 +1,98 @@
-/*creation for the database schema*/
+/** Creation of the database schema */
 
-/* Creation of database */
-CREATE DATABASE BaeOccupationalHealthReferralSystem;
-USE BaeOccupationalHealthReferralSystem;
 
-/* Creation of tables */
+-- Employee table
+CREATE TABLE EMPLOYEES (
+    Employee_ID INT PRIMARY KEY,
+    EmployeeName VARCHAR(100),
+    Roles VARCHAR(15) NOT NULL CHECK (Roles IN ('HR', 'Line-Manager', 'User')),
+    Email VARCHAR(100) NOT NULL,
+    Phone VARCHAR(15) NOT NULL,
+    EmployeeStartDate DATE NOT NULL,
+    CurrentLineManager VARCHAR(100),
+    Department_ID INT NOT NULL,
 
--- Department table
-CREATE TABLE Department (
-    DepartmentID INT Primary KEY AUTO_INCREMENT,
-    DepartmentName VARCHAR(100) NOT NULL,
-    DepartmentEmail VARCHAR(100) NOT NULL,
+    CONSTRAINT checking_CurrentLineManager CHECK (
+        (Roles = 'User' AND CurrentLineManager IS NOT NULL) OR
+        (Roles IN ('HR', 'Line-Manager') AND CurrentLineManager IS NULL))
+    
 );
 
--- LineManager table
-CREATE TABLE LineManager (
-    LineManagerID INT Primary KEY AUTO_INCREMENT,
-    LineManagerName VARCHAR(100) NOT NULL,
-    LineManagerEmail VARCHAR(100) NOT NULL,
-    DepartmentID INT,
-    FOREIGN KEY (DepartmentID) REFERENCES Department(DepartmentID)
-);
-
--- User table
-CREATE TABLE User (
-    UserID INT PRIMARY KEY AUTO_INCREMENT,
-    UserName VARCHAR(100) NOT NULL,
-    UserEmail VARCHAR(100) NOT NULL,
-    PhoneNumber VARCHAR(15) NOT NULL,
-    DepartmentID INT,
-    LineManagerID INT,
-    FOREIGN KEY (DepartmentID) REFERENCES Department(DepartmentID),
-    FOREIGN KEY (LineManagerID) REFERENCES LineManager(LineManagerID)
-);
-
--- Service Provider Table ( a should have? )
-
-CREATE TABLE ServiceProvider (
-    ServiceProviderID INT PRIMARY KEY AUTO_INCREMENT,
+-- Permissions table
+CREATE TABLE RolePermissions (
+    Roles VARCHAR(15) NOT NULL CHECK (Roles IN ('HR', 'Line-Manager', 'User')),
+    PermissionLevel VARCHAR(100) NOT NULL CHECK (PermissionLevel IN ('user', 'enhanced','enhanced+','admin')),
+    canCreateReferral BOOLEAN NOT NULL,
+    canViewReferral BOOLEAN NOT NULL,
+    canUpdateReferral BOOLEAN NOT NULL,
+    canDeleteReferral BOOLEAN NOT NULL,
+    canAssignReferral BOOLEAN NOT NULL,
+    canApproveReferral BOOLEAN NOT NULL,
+    canRecordReferral BOOLEAN NOT NULL
+    
+)
+-- Service Provider table
+CREATE TABLE ServiceProviders (
+    ServiceProvider_ID INT PRIMARY KEY,
     ServiceProviderName VARCHAR(100) NOT NULL,
-    ServiceProviderType ENUM('Internal', 'External') NOT NULL,
-    ServicesProvided TEXT,
-    provisionLevel INT CHECK (provisionLevel >= 1 AND provisionLevel <= 3),
+    ProvisionLevel VARCHAR(100) NOT NULL CHECK (ProvisionLevel IN ('1', '2', '3')),
+    ProviderType VARCHAR(100) NOT NULL CHECK (ProviderType IN ('internal', 'external')),
+    ServiceProvided VARCHAR(100) NOT NULL
 );
 
--- Referral type table
-CREATE TABLE ReferralType (
-    ReferralTypeID INT PRIMARY KEY AUTO_INCREMENT,
-    ReferralTypeName VARCHAR(100) NOT NULL,
-    Description TEXT
+-- Referral table
+CREATE TABLE Referrals (
+    Referral_ID INT PRIMARY KEY,
+    Employee_ID INT NOT NULL,
+    HR_Employee_ID INT NOT NULL,
+    ServiceProvider_ID INT NOT NULL,
+    StartDate DATE NOT NULL,
+    EndDate DATE NOT NULL,
+    Self_Referred VARCHAR(100) NOT NULL CHECK (Self_Referred IN ('non-selfReferral', 'self-referral')),
+    RequestedServices VARCHAR(100), -- restricted by type and level of service and shows service provided
+    UserNotes VARCHAR(100) NOT NULL,
+    Attachments BLOB,
+    ProjectedCost DECIMAL(10, 2) NOT NULL,
+    ActualCost DECIMAL(10, 2) NOT NULL,
+    Status VARCHAR(100) NOT NULL CHECK (Status IN ('open', 'closed', 'in-progress')),
+    Confidentiality BOOLEAN NOT NULL,
+    Emergency BOOLEAN NOT NULL,
+    EthicsOfficerRequest BOOLEAN NOT NULL,
+    HR_Notes VARCHAR(100) NOT NULL,
+    
+    CONSTRAINT fk_Employee FOREIGN KEY (Employee_ID) REFERENCES EMPLOYEES(Employee_ID),
+    CONSTRAINT fk_HR_Employee FOREIGN KEY (HR_Employee_ID) REFERENCES EMPLOYEES(Employee_ID),
+    CONSTRAINT fk_ServiceProvider FOREIGN KEY (ServiceProvider_ID) REFERENCES ServiceProviders(ServiceProvider_ID)
 );
 
--- User Role table
-CREATE TABLE UserRole (
-    RoleID INT PRIMARY KEY AUTO_INCREMENT,
-    RoleName VARCHAR(50) NOT NULL,
-    Description TEXT,
-    CanCreate BOOLEAN DEFAULT FALSE,
-    CanRead BOOLEAN DEFAULT TRUE,
-    CanUpdate BOOLEAN DEFAULT FALSE,
-    CanDelete BOOLEAN DEFAULT FALSE,
-    CanApprove BOOLEAN DEFAULT FALSE,
-    CanAssign BOOLEAN DEFAULT FALSE
+/* Link Table */
+-- avoids many-to-many relationships
+
+
+-- employee - department link table
+CREATE TABLE EmployeeDepartment_Link (
+    Employee_ID INT NOT NULL,
+    Department_ID INT NOT NULL,
+    PRIMARY KEY (Employee_ID, Department_ID),
+    FOREIGN KEY (Employee_ID) REFERENCES EMPLOYEES(Employee_ID),
+    FOREIGN KEY (Department_ID) REFERENCES Departments(Department_ID)
 );
 
--- Referral Status table
-CREATE TABLE ReferralStatus (
-    StatusID INT PRIMARY KEY AUTO_INCREMENT,
-    StatusName VARCHAR(50) NOT NULL,
-    Description TEXT
+CREATE TABLE EmployeeReferral_Link (
+    Employee_ID INT NOT NULL,
+    Referral_ID INT NOT NULL,
+    RoleInReferral VARCHAR(50) NOT NULL CHECK (RoleInReferral IN ('User', 'HR')),
+    PRIMARY KEY (Employee_ID, Referral_ID),
+    FOREIGN KEY (Employee_ID) REFERENCES EMPLOYEES(Employee_ID),
+    FOREIGN KEY (Referral_ID) REFERENCES Referrals(Referral_ID)
 );
 
--- Referral Table (main entity for referral system)
-CREATE TABLE Referral (
-    ReferralID INT PRIMARY KEY AUTO_INCREMENT,
-    EmployeeID INT NOT NULL,
-    DepartmentID INT NOT NULL,
-    LineManagerID INT NOT NULL,
-    ProviderID INT NOT NULL,
-    TypeID INT NOT NULL,
-    StatusID INT NOT NULL,
-    Confidential BOOLEAN DEFAULT FALSE,
-    DateRaised DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    DateCompleted DATETIME,
-    Description TEXT NOT NULL,
-    BudgetQuote DECIMAL(10,2),
-    ActualCost DECIMAL(10,2),
-    FOREIGN KEY (EmployeeID) REFERENCES Employee(EmployeeID),
-    FOREIGN KEY (DepartmentID) REFERENCES Department(DepartmentID),
-    FOREIGN KEY (LineManagerID) REFERENCES LineManager(ManagerID),
-    FOREIGN KEY (ProviderID) REFERENCES ServiceProvider(ProviderID),
-    FOREIGN KEY (TypeID) REFERENCES ReferralType(TypeID),
-    FOREIGN KEY (StatusID) REFERENCES ReferralStatus(StatusID)
+CREATE TABLE EmployeeRolePermissions_Link (
+    Employee_ID INT NOT NULL,
+    Roles VARCHAR(15) NOT NULL,
+    PRIMARY KEY (Employee_ID, Roles),
+    FOREIGN KEY (Employee_ID) REFERENCES EMPLOYEES(Employee_ID),
+    FOREIGN KEY (Roles) REFERENCES RolePermissions(Roles)
 );
 
--- ReferralNote table
-CREATE TABLE ReferralNote (
-    NoteID INT PRIMARY KEY AUTO_INCREMENT,
-    ReferralID INT NOT NULL,
-    EmployeeID INT NOT NULL,
-    NoteDate DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    NoteText TEXT NOT NULL,
-    Visibility ENUM('Open', 'Closed') DEFAULT 'Open',
-    FOREIGN KEY (ReferralID) REFERENCES Referral(ReferralID),
-    FOREIGN KEY (EmployeeID) REFERENCES Employee(EmployeeID)
-);
-
--- Attachment table
-CREATE TABLE Attachment (
-    AttachmentID INT PRIMARY KEY AUTO_INCREMENT,
-    ReferralID INT NOT NULL,
-    FileName VARCHAR(255) NOT NULL,
-    FileType VARCHAR(50),
-    FileSize INT,
-    UploadDate DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FilePath VARCHAR(255) NOT NULL,
-    FOREIGN KEY (ReferralID) REFERENCES Referral(ReferralID)
-);
-
--- Report table
-CREATE TABLE Report (
-    ReportID INT PRIMARY KEY AUTO_INCREMENT,
-    ReportName VARCHAR(100) NOT NULL,
-    Description TEXT,
-    DateGenerated DATETIME DEFAULT CURRENT_TIMESTAMP,
-    GeneratedBy INT NOT NULL,
-    Parameters TEXT,
-    FOREIGN KEY (GeneratedBy) REFERENCES Employee(EmployeeID)
-);
-
--- UserAccess table (for login and permissions)
-CREATE TABLE UserAccess (
-    UserID INT PRIMARY KEY AUTO_INCREMENT,
-    EmployeeID INT NOT NULL UNIQUE,
-    Username VARCHAR(50) NOT NULL UNIQUE,
-    PasswordHash VARCHAR(255) NOT NULL,
-    RoleID INT NOT NULL,
-    MFAEnabled BOOLEAN DEFAULT FALSE,
-    LastLogin DATETIME,
-    FOREIGN KEY (EmployeeID) REFERENCES Employee(EmployeeID),
-    FOREIGN KEY (RoleID) REFERENCES UserRole(RoleID)
-);
-
-
-/* Link tables for many-to-many relationships */
-
-
--- Permissions
-CREATE TABLE Permission (
-    PermissionID INT PRIMARY KEY AUTO_INCREMENT,
-    PermissionName VARCHAR(50)
-);
-
-CREATE TABLE RolePermission (
-    RoleID INT,
-    PermissionID INT,
-    PRIMARY KEY (RoleID, PermissionID),
-    FOREIGN KEY (RoleID) REFERENCES UserRole(RoleID),
-    FOREIGN KEY (PermissionID) REFERENCES Permission(PermissionID)
-);
-
--- Referral and Service Provider
-CREATE TABLE ReferralProvider (
-    ReferralID INT,
-    ProviderID INT,
-    PRIMARY KEY (ReferralID, ProviderID),
-    FOREIGN KEY (ReferralID) REFERENCES Referral(ReferralID),
-    FOREIGN KEY (ProviderID) REFERENCES ServiceProvider(ProviderID)
-);
-
+-- 
