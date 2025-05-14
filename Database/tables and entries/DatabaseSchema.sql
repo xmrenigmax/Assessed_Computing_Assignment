@@ -9,7 +9,7 @@ CREATE TABLE Department (
 );
 
 -- Employee table
-CREATE TABLE EMPLOYEES (
+CREATE TABLE Employee (
     Employee_ID INT PRIMARY KEY,
     EmployeeName VARCHAR(100),
     Email VARCHAR(100) NOT NULL,
