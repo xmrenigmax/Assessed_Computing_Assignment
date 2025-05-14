@@ -306,7 +306,14 @@ VALUES (10, TO_DATE('10-01-2024', 'DD-MM-YYYY'), 1, 11, 5, TO_DATE('11-01-2024',
 
 
 -- commit changes
-
 COMMIT;
+
+-- Drop tables if needed
+DROP TABLE Referral;
+DROP TABLE RolePermissions;
+DROP TABLE EmployeeRoles;
+DROP TABLE Employee;
+DROP TABLE ServiceProviders;
+DROP TABLE Department;
 
 
