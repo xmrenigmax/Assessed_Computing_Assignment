@@ -63,7 +63,7 @@ CREATE TABLE Referral (
     Notes VARCHAR(255),
     Attachment VARCHAR(255),
     Confidentiality BOOLEAN NOT NULL,
-    ReferralStatus VARCHAR(100) NOT NULL CHECK (ReferralStatus IN ('Open', 'Closed', 'In Progress')),
+    ReferralStatus VARCHAR(100) NOT NULL CHECK (ReferralStatus IN ('Open', 'Closed', 'In Progress', 'Deferred', 'Cancelled')),
     Emergency BOOLEAN NOT NULL,
     EthicsOfficer BOOLEAN NOT NULL,
 
@@ -77,3 +77,47 @@ CREATE TABLE Referral (
     CONSTRAINT fk_ServiceProvider FOREIGN KEY (ServiceProvider_ID) REFERENCES ServiceProviders(ServiceProvider_ID)
 
 );
+
+/* Select queries based on requirements */
+
+/* User Requirements
+1. Self-referral can be confidential or not. non-self referrals are not confidential.
+2. Can view status of own referrals.
+3. Can raise query against any active referrals (if involved)
+4. Can view all referrals raised by them up to 3 years back.
+5. Can close self-referrals but not non-self referrals.
+6. Can view open notes and attachments.
+7. information viewed by user = 
+    - Referral ID
+    - Created Date
+    - Created By
+    - Employee ID
+    - Service Provider ID
+    - Referral Date
+    - End Date
+    - Self Referral
+    - Requested Service
+    - Notes
+    - Attachment
+    - Confidentiality
+    - Referral Status
+    - Emergency
+    - Ethics Officer
+    - HR Employee
+    - HR Notes
+
+*/
+
+
+
+-- Combination 1-7 
+SELECT Referral_ID, CreatedDate, CreatedBy, Employee_ID, ServiceProvider_ID, ReferralDate, EndDate, SelfReferral,
+       RequestedService, Notes, Attachment, Confidentiality, ReferralStatus, Emergency, EthicsOfficer, HR_Employee, HR_Notes
+FROM Referral
+WHERE Employee_ID = 'current_employee_id'
+  AND ReferralStatus IN ('Open', 'In Progress', 'Closed', 'Deferred', 'Cancelled')
+  AND (SelfReferral = TRUE OR (SelfReferral = FALSE AND ReferralStatus != 'Closed'))
+  AND CreatedDate >= DATEADD(YEAR, -3, GETDATE());
+
+-- redesign of combination 1-7
+
