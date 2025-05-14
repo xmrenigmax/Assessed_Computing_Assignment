@@ -16,7 +16,8 @@ CREATE TABLE EMPLOYEES (
     PhoneNumber VARCHAR(15) NOT NULL,
     EmployeeStartDate DATE NOT NULL,
     CurrentLineManager VARCHAR(100),
-    Department_ID INT NOT NULL
+    Department_ID INT NOT NULL,
+    CONSTRAINT fk_Department FOREIGN KEY (Department_ID) REFERENCES Department(Department_ID)
 );
 
 -- Employee Roles table
@@ -44,38 +45,33 @@ CREATE TABLE RolePermissions (
     PermissionLevel VARCHAR(100) NOT NULL CHECK (PermissionLevel IN ('User', 'Enhanced', 'Enhanced+')),
 
     PRIMARY KEY (Employee_ID),
-    CONSTRAINT fk_Employee FOREIGN KEY (Employee_ID) REFERENCES EMPLOYEES(Employee_ID)
+    CONSTRAINT fk_RolePermissions_Employee FOREIGN KEY (Employee_ID) REFERENCES EMPLOYEES(Employee_ID)
 );
 
 -- Referral table
 CREATE TABLE Referral (
     Referral_ID INT PRIMARY KEY,
     CreatedDate DATE NOT NULL,
-    CreatedBy VARCHAR(100) NOT NULL, -- employee ID
+    CreatedBy INT NOT NULL, -- employee ID
     Employee_ID INT NOT NULL,
     ServiceProvider_ID INT NOT NULL,
-
     ReferralDate DATE NOT NULL,
     EndDate DATE NOT NULL,
-
-    SelfReferral BOOLEAN NOT NULL,
+    SelfReferral NUMBER(1) NOT NULL,
     RequestedService VARCHAR(100) NOT NULL,
     Notes VARCHAR(255),
     Attachment VARCHAR(255),
-    Confidentiality BOOLEAN NOT NULL,
+    Confidentiality NUMBER(1) NOT NULL,
     ReferralStatus VARCHAR(100) NOT NULL CHECK (ReferralStatus IN ('Open', 'Closed', 'In Progress', 'Deferred', 'Cancelled')),
-    Emergency BOOLEAN NOT NULL,
-    EthicsOfficer BOOLEAN NOT NULL,
-
+    Emergency NUMBER(1) NOT NULL,
+    EthicsOfficer NUMBER(1) NOT NULL,
     ProjectedCost DECIMAL(10, 2) NOT NULL,
     ActualCost DECIMAL(10, 2) NOT NULL,
-    HR_Employee BOOLEAN NOT NULL,
+    HR_Employee NUMBER(1) NOT NULL,
     HR_Notes VARCHAR(255),
-
-    PRIMARY KEY (Referral_ID),
-    CONSTRAINT fk_Employee FOREIGN KEY (Employee_ID) REFERENCES EMPLOYEES(Employee_ID),
+    -- Constraints
+    CONSTRAINT fk_Referral_Employee FOREIGN KEY (Employee_ID) REFERENCES EMPLOYEES(Employee_ID),
     CONSTRAINT fk_ServiceProvider FOREIGN KEY (ServiceProvider_ID) REFERENCES ServiceProviders(ServiceProvider_ID)
-
 );
 
 /* Select queries based on requirements */
@@ -113,8 +109,8 @@ CREATE TABLE Referral (
 -- redesign of combination 1-7 
 SELECT  Referral_ID, 
         CreatedDate, 
-        CreatedBy, 
-        Employee_ID, 
+        E1.EmployeeName AS CreatedBy,
+        E2.Employee_ID AS Employee_ID,
         ServiceProvider_ID, 
         ReferralDate, 
         EndDate, 
@@ -136,10 +132,16 @@ SELECT  Referral_ID,
         HR_Employee, 
         HR_Notes
     FROM Referral
-WHERE Employee_ID = 'current_employee_id'
-  AND ReferralStatus IN ('Open', 'In Progress', 'Closed', 'Deferred', 'Cancelled')
-  AND (SelfReferral = TRUE OR (SelfReferral = FALSE AND ReferralStatus != 'Closed'))
-  AND CreatedDate >= DATEADD(YEAR, -3, GETDATE());
+
+    -- outer joins to get employee names
+    LEFT JOIN EMPLOYEES E1 ON Referral.CreatedBy = E1.Employee_ID
+    LEFT JOIN EMPLOYEES E2 ON Referral.Employee_ID = E2.Employee_ID
+
+
+    -- Where clauses to filter
+    WHERE ReferralStatus IN ('Open', 'In Progress', 'Closed', 'Deferred', 'Cancelled')
+        AND (SelfReferral = 1 OR (SelfReferral = 0 AND ReferralStatus != 'Closed'))
+        AND CreatedDate >= ADD_MONTHS(SYSDATE, -36);
 
 
 
@@ -154,32 +156,95 @@ WHERE Employee_ID = 'current_employee_id'
 */
 
 -- combination of 1-8
-SELECT  Referral_ID, 
-        CreatedDate, 
-        CreatedBy, 
-        Employee_ID, 
-        ServiceProvider_ID, 
-        ReferralDate, 
-        EndDate, 
-        SelfReferral,
-        RequestedService,
+SELECT  R.Referral_ID, 
+        R.CreatedDate, 
+        E1.EmployeeName AS CreatedBy,
+        E2.Employee_ID,
+        R.ServiceProvider_ID, 
+        R.ReferralDate, 
+        R.EndDate, 
+        R.SelfReferral,
+        R.RequestedService,
         -- Conditions based on status 
         CASE
-            WHEN ReferralStatus IN ('Open','In Progress') THEN Notes
+            WHEN R.ReferralStatus IN ('Open','In Progress') THEN R.Notes
             ELSE NULL
         END AS Notes,
         CASE
-            WHEN ReferralStatus IN ('Open','In Progress') THEN Attachment
+            WHEN R.ReferralStatus IN ('Open','In Progress') THEN R.Attachment
             ELSE NULL
         END AS Attachment, 
-        Confidentiality, 
-        ReferralStatus, 
-        Emergency, 
-        EthicsOfficer, 
-        HR_Employee, 
-        HR_Notes
-    FROM Referral
-WHERE Employee_ID IN (SELECT Employee_ID FROM EMPLOYEES WHERE CurrentLineManager = 'current_employee_id')
-  AND ReferralStatus IN ('Open', 'In Progress', 'Closed', 'Deferred', 'Cancelled')
-  AND (SelfReferral = TRUE OR (SelfReferral = FALSE AND ReferralStatus != 'Closed'))
-  AND CreatedDate >= DATEADD(YEAR, -3, GETDATE());
+        R.Confidentiality, 
+        R.ReferralStatus, 
+        R.Emergency, 
+        R.EthicsOfficer, 
+        R.HR_Employee, 
+        R.HR_Notes
+    FROM Referral R
+
+    -- outer joins to get employee names
+    LEFT JOIN EMPLOYEES E1 ON R.CreatedBy = E1.Employee_ID
+    LEFT JOIN EMPLOYEES E2 ON R.Employee_ID = E2.Employee_ID
+
+    -- Where clauses to filter
+    WHERE R.Employee_ID IN (SELECT Employee_ID FROM EMPLOYEES WHERE CurrentLineManager = 'current_employee_id')
+        AND R.ReferralStatus IN ('Open', 'In Progress', 'Closed', 'Deferred', 'Cancelled')
+        AND (R.SelfReferral = 1 OR (R.SelfReferral = 0 AND R.ReferralStatus != 'Closed'))
+        AND R.CreatedDate >= ADD_MONTHS(SYSDATE, -36);
+
+
+/* HR Requirements 
+1. can change confidentiality status of referrals done by line managers and HR
+*/
+
+SELECT  R.Referral_ID, 
+        R.CreatedDate, 
+        E1.EmployeeName AS CreatedBy,
+        E2.Employee_ID,
+        R.ServiceProvider_ID, 
+        R.ReferralDate, 
+        R.EndDate, 
+        R.SelfReferral,
+        R.RequestedService,
+        -- Conditions based on status 
+        CASE
+            WHEN R.ReferralStatus IN ('Open','In Progress') THEN R.Notes
+            ELSE NULL
+        END AS Notes,
+        CASE
+            WHEN R.ReferralStatus IN ('Open','In Progress') THEN R.Attachment
+            ELSE NULL
+        END AS Attachment, 
+        R.Confidentiality, 
+        R.ReferralStatus, 
+        R.Emergency, 
+        R.EthicsOfficer, 
+        R.HR_Employee, 
+        R.HR_Notes
+    FROM Referral R
+
+    -- outer joins to get employee names
+    LEFT JOIN EMPLOYEES E1 ON R.CreatedBy = E1.Employee_ID
+    LEFT JOIN EMPLOYEES E2 ON R.Employee_ID = E2.Employee_ID
+
+    -- Where clauses to filter
+    WHERE R.Employee_ID IN (
+    SELECT E.Employee_ID 
+    FROM EMPLOYEES E
+    JOIN EmployeeRoles ER ON E.Employee_ID = ER.Employee_ID 
+    WHERE ER.Roles = 'HR'
+)
+        AND R.ReferralStatus IN ('Open', 'In Progress', 'Closed', 'Deferred', 'Cancelled')
+        AND (R.SelfReferral = 1 OR (R.SelfReferral = 0 AND R.ReferralStatus != 'Closed'))
+        AND R.CreatedDate >= ADD_MONTHS(SYSDATE, -36);
+
+
+-- Drop tables if needed
+DROP TABLE Referral;
+DROP TABLE RolePermissions;
+DROP TABLE EmployeeRoles;
+DROP TABLE EMPLOYEES;
+DROP TABLE ServiceProviders;
+DROP TABLE Department;
+
+-- commit changes
