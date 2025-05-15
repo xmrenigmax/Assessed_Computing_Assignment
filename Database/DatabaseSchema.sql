@@ -140,27 +140,29 @@ INSERT INTO RolePermissions (Employee_ID, PermissionLevel) VALUES (12, 'User');
 
 -- Insert into Referral
 INSERT INTO Referral (Referral_ID, CreatedDate, CreatedBy, Employee_ID, ServiceProvider_ID, ReferralDate, EndDate, SelfReferral, RequestedService, Notes, Attachment, Confidentiality, ReferralStatus, Emergency, EthicsOfficer, ProjectedCost, ActualCost, HR_Employee, HR_Notes)
-VALUES (1, TO_DATE('01-01-2024', 'DD-MM-YYYY'), 1, 2, 1, TO_DATE('02-01-2024', 'DD-MM-YYYY'), TO_DATE('03-01-2024', 'DD-MM-YYYY'), 1, 'Medical Checkup', 'Initial consultation', 'attachment1.pdf', 1, 'Open', 0, 0, 100.00, 50.00, 0, NULL);
+VALUES (1, TO_DATE('01-01-2024', 'DD-MM-YYYY'), 1, 2, 1, TO_DATE('02-01-2024', 'DD-MM-YYYY'), TO_DATE('03-01-2024', 'DD-MM-YYYY'), 1, 'Medical Checkup', 'Initial consultation', 'attachment1.pdf', 0, 'Open', 0, 0, 100.00, 50.00, 1, NULL);
 INSERT INTO Referral (Referral_ID, CreatedDate, CreatedBy, Employee_ID, ServiceProvider_ID, ReferralDate, EndDate, SelfReferral, RequestedService, Notes, Attachment, Confidentiality, ReferralStatus, Emergency, EthicsOfficer, ProjectedCost, ActualCost, HR_Employee, HR_Notes)
-VALUES (2, TO_DATE('02-01-2024', 'DD-MM-YYYY'), 1, 3, 2, TO_DATE('03-01-2024', 'DD-MM-YYYY'), TO_DATE('04-01-2024', 'DD-MM-YYYY'), 0, 'Counseling', 'Follow-up session', 'attachment2.pdf', 1, 'In Progress', 0, 0, 200.00, 150.00, 0, NULL);
+VALUES (2, TO_DATE('02-01-2024', 'DD-MM-YYYY'), 1, 1, 2, TO_DATE('03-01-2024', 'DD-MM-YYYY'), TO_DATE('04-01-2024', 'DD-MM-YYYY'), 0, 'Counseling', 'Follow-up session', 'attachment2.pdf', 1, 'In Progress', 0, 0, 200.00, 150.00, 0, NULL);
 INSERT INTO Referral (Referral_ID, CreatedDate, CreatedBy, Employee_ID, ServiceProvider_ID, ReferralDate, EndDate, SelfReferral, RequestedService, Notes, Attachment, Confidentiality, ReferralStatus, Emergency, EthicsOfficer, ProjectedCost, ActualCost, HR_Employee, HR_Notes)
-VALUES (3, TO_DATE('03-01-2024', 'DD-MM-YYYY'), 1, 4, 3, TO_DATE('04-01-2024', 'DD-MM-YYYY'), TO_DATE('05-01-2024', 'DD-MM-YYYY'), 1, 'Gym Membership', 'Initial consultation', 'attachment3.pdf', 1, 'Closed', 0, 0, 300.00, 250.00, 0, NULL);
+VALUES (3, TO_DATE('03-01-2024', 'DD-MM-YYYY'), 1, 3, 3, TO_DATE('04-01-2024', 'DD-MM-YYYY'), TO_DATE('05-01-2024', 'DD-MM-YYYY'), 1, 'Gym Membership', 'Initial consultation', 'attachment3.pdf', 0, 'Closed', 0, 0, 300.00, 250.00, 0, NULL);
 INSERT INTO Referral (Referral_ID, CreatedDate, CreatedBy, Employee_ID, ServiceProvider_ID, ReferralDate, EndDate, SelfReferral, RequestedService, Notes, Attachment, Confidentiality, ReferralStatus, Emergency, EthicsOfficer, ProjectedCost, ActualCost, HR_Employee, HR_Notes)
-VALUES (4, TO_DATE('04-01-2024', 'DD-MM-YYYY'), 1, 5, 4, TO_DATE('05-01-2024', 'DD-MM-YYYY'), TO_DATE('06-01-2024', 'DD-MM-YYYY'), 0, 'Diet Consultation', 'Initial consultation', 'attachment4.pdf', 1, 'Deferred', 0, 0, 400.00, 350.00, 0, NULL);
+VALUES (4, TO_DATE('04-01-2024', 'DD-MM-YYYY'), 1, 1, 4, TO_DATE('05-01-2024', 'DD-MM-YYYY'), TO_DATE('06-01-2024', 'DD-MM-YYYY'), 0, 'Diet Consultation', 'Initial consultation', 'attachment4.pdf', 1, 'Deferred', 0, 0, 400.00, 350.00, 0, NULL);
 INSERT INTO Referral (Referral_ID, CreatedDate, CreatedBy, Employee_ID, ServiceProvider_ID, ReferralDate, EndDate, SelfReferral, RequestedService, Notes, Attachment, Confidentiality, ReferralStatus, Emergency, EthicsOfficer, ProjectedCost, ActualCost, HR_Employee, HR_Notes)
-VALUES (5, TO_DATE('05-01-2024', 'DD-MM-YYYY'), 1, 6, 5, TO_DATE('06-01-2024', 'DD-MM-YYYY'), TO_DATE('07-01-2024', 'DD-MM-YYYY'), 1, 'Wellness Programs', 'Initial consultation', 'attachment5.pdf', 1, 'Cancelled', 0, 0, 500.00, 450.00, 0, NULL);
+VALUES (5, TO_DATE('05-01-2024', 'DD-MM-YYYY'), 1, 4, 5, TO_DATE('06-01-2024', 'DD-MM-YYYY'), TO_DATE('07-01-2024', 'DD-MM-YYYY'), 1, 'Wellness Programs', 'Initial consultation', 'attachment5.pdf', 0, 'Cancelled', 0, 0, 500.00, 450.00, 0, NULL);
 INSERT INTO Referral (Referral_ID, CreatedDate, CreatedBy, Employee_ID, ServiceProvider_ID, ReferralDate, EndDate, SelfReferral, RequestedService, Notes, Attachment, Confidentiality, ReferralStatus, Emergency, EthicsOfficer, ProjectedCost, ActualCost, HR_Employee, HR_Notes)
-VALUES (6, TO_DATE('06-01-2024', 'DD-MM-YYYY'), 1, 7, 1, TO_DATE('07-01-2024', 'DD-MM-YYYY'), TO_DATE('08-01-2024', 'DD-MM-YYYY'), 0, 'Medical Checkup', 'Initial consultation', 'attachment6.pdf', 1, 'Open', 0, 0, 600.00, 550.00, 0, NULL);
+VALUES (6, TO_DATE('06-01-2024', 'DD-MM-YYYY'), 3, 7, 1, TO_DATE('07-01-2024', 'DD-MM-YYYY'), TO_DATE('08-01-2024', 'DD-MM-YYYY'), 0, 'Medical Checkup', 'Initial consultation', 'attachment6.pdf', 1, 'Open', 0, 0, 600.00, 550.00, 0, NULL);
 INSERT INTO Referral (Referral_ID, CreatedDate, CreatedBy, Employee_ID, ServiceProvider_ID, ReferralDate, EndDate, SelfReferral, RequestedService, Notes, Attachment, Confidentiality, ReferralStatus, Emergency, EthicsOfficer, ProjectedCost, ActualCost, HR_Employee, HR_Notes)
-VALUES (7, TO_DATE('07-01-2024', 'DD-MM-YYYY'), 1, 8, 2, TO_DATE('08-01-2024', 'DD-MM-YYYY'), TO_DATE('09-01-2024', 'DD-MM-YYYY'), 1, 'Counseling', 'Initial consultation', 'attachment7.pdf', 1, 'In Progress', 0, 0, 700.00, 650.00, 0, NULL);
+VALUES (7, TO_DATE('07-01-2024', 'DD-MM-YYYY'), 2, 8, 2, TO_DATE('08-01-2024', 'DD-MM-YYYY'), TO_DATE('09-01-2024', 'DD-MM-YYYY'), 0, 'Counseling', 'Initial consultation', 'attachment7.pdf', 1, 'In Progress', 0, 0, 700.00, 650.00, 1, NULL);
 INSERT INTO Referral (Referral_ID, CreatedDate, CreatedBy, Employee_ID, ServiceProvider_ID, ReferralDate, EndDate, SelfReferral, RequestedService, Notes, Attachment, Confidentiality, ReferralStatus, Emergency, EthicsOfficer, ProjectedCost, ActualCost, HR_Employee, HR_Notes)
-VALUES (8, TO_DATE('08-01-2024', 'DD-MM-YYYY'), 1, 9, 3, TO_DATE('09-01-2024', 'DD-MM-YYYY'), TO_DATE('10-01-2024', 'DD-MM-YYYY'), 0, 'Gym Membership', 'Initial consultation', 'attachment8.pdf', 1, 'Closed', 0, 0, 800.00, 750.00, 0, NULL);
+VALUES (8, TO_DATE('08-01-2024', 'DD-MM-YYYY'), 4, 9, 3, TO_DATE('09-01-2024', 'DD-MM-YYYY'), TO_DATE('10-01-2024', 'DD-MM-YYYY'), 0, 'Gym Membership', 'Initial consultation', 'attachment8.pdf', 1, 'Closed', 0, 0, 800.00, 750.00, 0, NULL);
 INSERT INTO Referral (Referral_ID, CreatedDate, CreatedBy, Employee_ID, ServiceProvider_ID, ReferralDate, EndDate, SelfReferral, RequestedService, Notes, Attachment, Confidentiality, ReferralStatus, Emergency, EthicsOfficer, ProjectedCost, ActualCost, HR_Employee, HR_Notes)
-VALUES (9, TO_DATE('09-01-2024', 'DD-MM-YYYY'), 1, 10, 4, TO_DATE('10-01-2024', 'DD-MM-YYYY'), TO_DATE('11-01-2024', 'DD-MM-YYYY'), 1, 'Diet Consultation', 'Initial consultation', 'attachment9.pdf', 1, 'Deferred', 0, 0, 900.00, 850.00, 0, NULL);
+VALUES (9, TO_DATE('09-01-2024', 'DD-MM-YYYY'), 2, 10, 4, TO_DATE('10-01-2024', 'DD-MM-YYYY'), TO_DATE('11-01-2024', 'DD-MM-YYYY'),0, 'Diet Consultation', 'Initial consultation', 'attachment9.pdf', 1, 'Deferred', 0, 0, 900.00, 850.00, 0, NULL);
 INSERT INTO Referral (Referral_ID, CreatedDate, CreatedBy, Employee_ID, ServiceProvider_ID, ReferralDate, EndDate, SelfReferral, RequestedService, Notes, Attachment, Confidentiality, ReferralStatus, Emergency, EthicsOfficer, ProjectedCost, ActualCost, HR_Employee, HR_Notes)
-VALUES (10, TO_DATE('10-01-2024', 'DD-MM-YYYY'), 1, 1, 5, TO_DATE('11-01-2024', 'DD-MM-YYYY'), TO_DATE('12-01-2024', 'DD-MM-YYYY'), 0, 'Wellness Programs', 'Initial consultation', 'attachment10.pdf', 1, 'Cancelled', 0, 0, 1000.00, 950.00, 0, NULL);
+VALUES (10, TO_DATE('10-01-2024', 'DD-MM-YYYY'), 1, 1, 5, TO_DATE('11-01-2024', 'DD-MM-YYYY'), TO_DATE('12-01-2024', 'DD-MM-YYYY'),1, 'Wellness Programs', 'Initial consultation', 'attachment10.pdf', 1, 'Cancelled', 0, 0, 1000.00, 950.00, 0, NULL);
 
-
+UPDATE Referral 
+SET Confidentiality = 0 
+WHERE Referral_ID IN (1, 2, 4);
 
 
 /* QUERY: Select queries based on requirements */
@@ -204,9 +206,8 @@ SELECT
         JOIN Employee employee ON Referral.Employee_ID = employee.Employee_ID
     
     -- Where clauses to filter
-        WHERE (SelfReferral = 1 OR (SelfReferral = 0 AND ReferralStatus != 'Closed'))
+        WHERE  employee.Employee_ID = 1 OR CreatedBy = 1
             AND CreatedDate >= ADD_MONTHS(SYSDATE, -36);
-
 
 
 /* Line Manager Requirements*/
@@ -245,14 +246,16 @@ SELECT
     HR_Notes
     FROM Referral
 
-    -- outer joins to get employee names
+    -- outer joins to get employee names 
         JOIN Employee creator ON CreatedBy = creator.Employee_ID
         JOIN Employee employee ON Referral.Employee_ID = employee.Employee_ID
 
     -- Where clauses to filter
-        WHERE Referral.Employee_ID IN (SELECT Employee_ID FROM Employee WHERE CurrentLineManager = employee.CurrentLineManager)
-            AND (SelfReferral = 1 OR (SelfReferral = 0 AND ReferralStatus != 'Closed'))
-            AND CreatedDate >= ADD_MONTHS(SYSDATE, -36);
+        WHERE Referral.Employee_ID IN (SELECT Employee_ID FROM Employee WHERE Department_ID = (SELECT Department_ID FROM Employee WHERE Employee_ID = 1))
+            AND employee.Employee_ID = 1 OR CreatedBy = 1
+            AND CONFIDENTIALITY = 0
+
+            AND CreatedDate >= ADD_MONTHS(SYSDATE, -36); -- older than 3 yrs
 
 -- HR view
 SELECT  
@@ -273,7 +276,7 @@ SELECT
             Notes 
         ELSE 
             NULL END AS Notes,
-    CASE 
+    CASE
         WHEN   
             ReferralStatus IN ('Open','In Progress') 
         THEN 
@@ -295,11 +298,12 @@ SELECT
         JOIN Employee employee ON Referral.Employee_ID = employee.Employee_ID
 
         -- WHERE clause to filter
-        WHERE (SelfReferral = 1 OR (SelfReferral = 0 AND ReferralStatus != 'Closed'))
-            AND CreatedDate >= ADD_MONTHS(SYSDATE, -36);
+            WHERE HR_EMPLOYEE = 1
+                AND ReferralStatus IN ('Open','In Progress')
+                AND CreatedDate >= ADD_MONTHS(SYSDATE, -36);
 
 
--- commit changes
+-- Commit the changes
 COMMIT;
 
 -- Drop tables if needed
