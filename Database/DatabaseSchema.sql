@@ -299,7 +299,6 @@ SELECT
 
         -- WHERE clause to filter
             WHERE HR_EMPLOYEE = 1
-                AND ReferralStatus IN ('Open','In Progress')
                 AND CreatedDate >= ADD_MONTHS(SYSDATE, -36);
 
 
